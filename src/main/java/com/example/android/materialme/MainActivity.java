@@ -18,7 +18,12 @@ package com.example.android.materialme;
 
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,13 +43,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        int gridColumnCount = getResources().getInteger(R.integer.grid_column_count);
+        ItemTouchHelper ith = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                mSportsData.remove(viewHolder.getAdapterPosition());
+                mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+            }
+        });
 
         //Initialize the RecyclerView
         mRecyclerView = (RecyclerView)findViewById(R.id.recyclerView);
+        ith.attachToRecyclerView(mRecyclerView);
 
         //Set the Layout Manager
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, gridColumnCount));
+        
         //Initialize the ArrayLIst that will contain the data
         mSportsData = new ArrayList<>();
 
@@ -79,4 +98,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 
+
+    public void resetSports(View view) {
+        initializeData();
+    }
 }
